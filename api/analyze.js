@@ -68,6 +68,7 @@ Quelques phrases. Sans pitié. Aucun rembourrage.
 6. 🧨 Conclusion
 SCALPES est un murmure stratégique.
 Tu prends… Ou tu perds.
+Tu as Scalpes... Les autres, l'illusion.
           `,
         },
         {
