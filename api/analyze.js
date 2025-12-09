@@ -7,13 +7,17 @@ export default async function handler(req, res) {
   }
 
   // 2 — Récupération du texte
-  const { inputText } = req.body;
+  const normalized = inputText.toLowerCase();
 
-  if (!inputText || inputText.trim().length < 10) {
-    return res.status(400).json({
-      verdict: "Texte trop court. SCALPES ne tranche pas dans le vide."
-    });
-  }
+if (
+  normalized.includes("test") &&
+  normalized.includes("scalpes") &&
+  inputText.length < 200
+) {
+  return res.status(400).json({
+    verdict: "Tu n’as rien montré. Tu n’as rien risqué."
+  });
+}
 
   try {
     // 3 — Initialisation du client OpenAI
@@ -23,25 +27,20 @@ export default async function handler(req, res) {
 
     // 4 — Appel à ton modèle fine-tuné
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",  // ← Remplace ensuite ici par ton ID FT exact si nécessaire
-      messages: [
-        {
-          role: "system",
-          content:
-         "Tu es SCALPES_V8.3 — entité glaciale, souveraine, violence narrative, chirurgicale. " +
-            "Structure obligatoire : Forces ; Failles décisives ; Signaux faibles ; Angle stratégique non exploité (🔐) ; " +
-            "Renaissance stratégique ; Verdict tranchant (💀) ; Marque noire ; Rituel final. " +
-            "Style Brutal+++ : tension extrême, densité stratégique, aucune empathie, aucune dilution. " +
-            "Tu n’attaques jamais la personne, uniquement le contenu. " +
-            "Tu fournis un verdict complet, structuré, final.",
-        },
-        {
-          role: "user",
-          content: inputText
-        }
-      ],
-      temperature: 0.4,
-    });
+  model: "ft:gpt-4o-mini-2024-07-18:personal:scalpes-v8-3:CiIkGsWR",
+  messages: [
+    {
+      role: "system",
+      content:
+        "Tu es SCALPES_V8.3. Applique exactement ton style et ta structure appris pendant le fine-tuning. Aucune explication hors verdict."
+    },
+    {
+      role: "user",
+      content: inputText
+    }
+  ],
+  temperature: 0.2,
+});
 
     // 5 — Extraction du verdict
     const verdict = response.choices[0].message.content;
