@@ -34,7 +34,7 @@ export default async function handler(req, res) {
 
     // 5. Appel OpenAI (STEP 1 : modèle de base, pas encore le FT)
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // on validera d'abord ça, puis on passera au modèle fine-tuné
+      model: "ft:gpt-4o-mini-2024-07-18:personal:scalpes-v8-3:CkQVAEZu",
       messages: [
         {
           role: "system",
