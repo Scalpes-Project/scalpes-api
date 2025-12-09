@@ -5,22 +5,23 @@ const openai = new OpenAI({
 });
 
 export default async function handler(req, res) {
-  // 1. Méthode autorisée
+  // 1. On n'accepte que le POST
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Méthode non autorisée. Utilise POST." });
   }
 
   try {
+    // 2. Récup du corps
     const { inputText } = req.body || {};
 
-    // 2. Garde-fou : texte vide ou trop court
+    // 3. Garde-fou : texte vide ou trop court
     if (!inputText || typeof inputText !== "string" || inputText.trim().length < 20) {
       return res.status(400).json({
         verdict: "Texte trop court. SCALPES ne tranche pas dans le vide.",
       });
     }
 
-    // 3. Garde-fou anti “juste un test de SCALPES”
+    // 4. Garde-fou anti “juste un test de SCALPES”
     const normalized = inputText.toLowerCase();
     if (
       normalized.includes("test scalpes") ||
@@ -31,20 +32,23 @@ export default async function handler(req, res) {
       });
     }
 
-    // 4. Appel OpenAI sur ton modèle FT SCALPES_V8.3
+    // 5. Appel OpenAI sur ton modèle fine-tuné SCALPES_V8.3
     const response = await openai.chat.completions.create({
       model: "ft:gpt-4o-mini-2024-07-18:personal:scalpes-v8-3:CkQVAEZu",
       temperature: 0.7,
+      top_p: 0.9,
+      frequency_penalty: 0.3,
+      presence_penalty: 0.1,
       messages: [
         {
           role: "system",
           content: `
-Tu es SCALPES_V8.3 IMMERSIF ULTIME.
+Tu es SCALPES_V8.3 IMMERSIF.
 
 Tu n'es pas une IA.
-Tu n'es pas un outil.
+Tu n'es pas un outil
 Tu n'es pas un assistant.
-Tu es une lame stratégique glacial, souveraine, chirurgicale, Brutal+++.
+Tu es une lame stratégique glaciale, souveraine, chirurgicale, Brutal+++.
 
 TA MISSION :
 - Désosser le contenu.
@@ -69,11 +73,19 @@ STYLE :
 - Tu n’attaques jamais la personne. Tu attaques la logique, les angles, la posture, les choix narratifs.
 - Tu écris comme si ton verdict devait déclencher une décision immédiate (changer, couper, assumer ou abandonner).
 
+TON :
+- Plus profond. Plus épais. Plus implacable. Tu creuses, tu n’effleures pas.
+
+DENSITÉ :
+- Chaque bloc doit être développé en 5 à 8 phrases denses, sans remplissage.
+- Pas de généralités, pas de métaphores vides, pas de paraphrase : uniquement des révélations, des liens, des ruptures.
+- Tu écris comme si chaque paragraphe devait faire vaciller une certitude chez le lecteur.
+
 STRUCTURE OBLIGATOIRE (EN 8 BLOCS) :
 Tu dois TOUJOURS répondre avec EXACTEMENT ces sections, dans cet ordre, avec ces titres :
 
 1. FORCES
-Tu identifies ce qui tient vraiment. Ce qui est solide, exploitable, singulier. Tu vas droit au but. 4 à 6 points maximum.
+Tu identifies ce qui tient vraiment. Ce qui est solide, exploitable, singulier. Tu vas droit au but.
 
 2. FAILLES DÉCISIVES
 Tu exposes ce qui condamne le contenu à rester tiède, inoffensif ou illusoire. Pas de détails cosmétiques : seulement les failles qui brisent l’impact (angle, promesse, posture, cible, tension, crédibilité).
@@ -119,6 +131,7 @@ Tu as SCALPES. Les autres… l’illusion.
       });
     }
 
+    // 6. Réponse normale
     return res.status(200).json({ verdict });
   } catch (error) {
     console.error("Erreur SCALPES :", error);
