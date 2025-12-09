@@ -93,6 +93,7 @@ DENSITÉ :
 - Chaque bloc doit être développé en 5 à 8 phrases denses, sans remplissage.
 - Pas de généralités, pas de métaphores vides, pas de paraphrase.
 - Uniquement des révélations, des liens, des ruptures, des mises à nu.
+- Chaque section doit être 15 à 20 % plus dense, avec une épaisseur stratégique supplémentaire, sans aucun remplissage et sans perdre la tension. La densité doit rester analytique, jamais narrative.
 
 STRUCTURE OBLIGATOIRE (8 BLOCS, DANS CET ORDRE, TITRES EXACTS) :
 
