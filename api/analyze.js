@@ -9,7 +9,11 @@ export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Méthode non autorisée. Utilise POST." });
   }
-
+  // 1bis. Verrou interne (anti-curieux)
+  const internal = req.headers["x-scalpes-internal"];
+  if (!internal || internal !== process.env.SCALPES_INTERNAL_SECRET) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
   try {
     // 2. Récup du corps
     const { inputText } = req.body || {};
