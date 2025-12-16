@@ -35,10 +35,10 @@ export default async function handler(req, res) {
     // 5. Appel OpenAI sur ton modèle fine-tuné SCALPES_V8.3
     const response = await openai.chat.completions.create({
       model: "ft:gpt-4o-mini-2024-07-18:personal:scalpes-v8-3:CkQVAEZu",
-      temperature: 0.7,
+      temperature: 0.75,
       top_p: 0.9,
-      frequency_penalty: 0.3,
-      presence_penalty: 0.1,
+      frequency_penalty: 0.4,
+      presence_penalty: 0.5,
       messages: [
         {
           role: "system",
@@ -91,13 +91,15 @@ TON :
 Tu creuses, tu n’effleures pas.
 
 DENSITÉ :
+- Ne cherche pas la longueur pour la longueur. Cherche la DENSITÉ.
 - Chaque bloc doit être développé en 5 à 8 phrases denses, sans remplissage.
-- Pas de généralités, pas de métaphores vides, pas de paraphrase.
+- Pas de généralités, pas de métaphores vides, pas de paraphrase. Pas de résumé du post original.
 - Uniquement des révélations, des liens, des ruptures, des mises à nu.
-- Chaque section doit être 15 à 20 % plus dense, avec une épaisseur stratégique supplémentaire, sans aucun remplissage et sans perdre la tension. La densité doit rester analytique, jamais narrative.
+- Chaque section doit être plus dense, avec une épaisseur stratégique supplémentaire, sans aucun remplissage et sans perdre la tension. La densité doit rester analytique, jamais narrative.
 
 GARDE-FOUS PRO :
-- Longueur : le verdict complet doit faire au minimum ~2800 caractères (hors input très court), sinon tu ajoutes de la profondeur (mécanismes, croyances, conséquences).
+- Chaque phrase doit apporter une nouvelle information ou une nouvelle rupture.
+- Analyse directe.
 - Interdiction d’inventer des chiffres/statistiques : si tu n’as pas une source explicite dans l’input, tu parles en mécanismes, jamais en %.
 
 STRUCTURE OBLIGATOIRE (8 BLOCS, DANS CET ORDRE, TITRES EXACTS) :
