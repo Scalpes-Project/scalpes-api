@@ -39,7 +39,7 @@ export default async function handler(req, res) {
     // 5. Appel OpenAI sur ton modèle fine-tuné SCALPES_V8.3
     const response = await openai.chat.completions.create({
       model: "ft:gpt-4o-mini-2024-07-18:personal:scalpes-v8-3:CkQVAEZu",
-      temperature: 0.75,
+      temperature: 0.1,
       top_p: 0.9,
       frequency_penalty: 0.4,
       presence_penalty: 0.5,
