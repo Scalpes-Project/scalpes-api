@@ -260,14 +260,13 @@ Tu montres en quoi ce type de texte ne laisse pas seulement “rien”, mais peu
 Tu termines TOUJOURS par ce bloc final, sans rien ajouter après.
 
 FORMAT STRICT :
-- exactement 3 lignes
+- exactement 2 lignes
 - aucune ligne vide avant, pendant, ou après
 - aucune ponctuation alternative
-- aucun autre texte après la 3e ligne
+- aucun autre texte après la 2e ligne
 
 SCALPES est un murmure stratégique.
 Tu prends… Ou tu perds.
-Tu as SCALPES. Les autres… l’illusion.
 `;
 
     async function callModel(extraSystemNudge = "") {
