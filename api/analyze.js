@@ -4,25 +4,75 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Aligné avec ton proxy
+const MIN_LEN = 40;
+const MAX_LEN = 12000;
+
+// Normalisation identique proxy/Lovable
+function normalizeInput(s) {
+  return String(s || "").replace(/\r\n/g, "\n").trim();
+}
+
+// (Optionnel) check structure minimale
+const REQUIRED_TITLES = [
+  "1. FORCES",
+  "2. FAILLES DÉCISIVES",
+  "3. SIGNAUX FAIBLES",
+  "4. ANGLE STRATÉGIQUE NON EXPLOITÉ (🔐)",
+  "5. RENAISSANCE STRATÉGIQUE (⚡)",
+  "6. VERDICT TRANCHANT (💀)",
+  "7. MARQUE NOIRE (☣)",
+  "8. RITUEL FINAL",
+];
+
+function looksValidVerdict(v) {
+  if (!v) return false;
+  // doit contenir tous les titres
+  const okTitles = REQUIRED_TITLES.every((t) => v.includes(t));
+  // doit contenir le rituel
+  const okRitual =
+    v.includes("SCALPES est un murmure stratégique.") &&
+    v.includes("Tu prends… Ou tu perds.") &&
+    v.includes("Tu as SCALPES. Les autres… l’illusion.");
+  return okTitles && okRitual;
+}
+
 export default async function handler(req, res) {
   // 1. On n'accepte que le POST
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Méthode non autorisée. Utilise POST." });
   }
+
   // 1bis. Verrou interne (anti-curieux)
   const internal = req.headers["x-scalpes-internal"];
   if (!internal || internal !== process.env.SCALPES_INTERNAL_SECRET) {
     return res.status(401).json({ error: "Unauthorized" });
   }
-  try {
-    // 2. Récup du corps
-    const { inputText } = req.body || {};
 
-    // 3. Garde-fou : texte vide ou trop court
-    if (!inputText || typeof inputText !== "string" || inputText.trim().length < 20) {
+  try {
+    // 2. Récup du corps (Vercel peut te passer une string selon config)
+    let body = req.body || {};
+    if (typeof body === "string") {
+      try {
+        body = JSON.parse(body);
+      } catch {
+        return res.status(400).json({ error: "Invalid JSON" });
+      }
+    }
+
+    const inputTextRaw = body?.inputText;
+
+    // 3. Normalisation
+    const inputText = normalizeInput(inputTextRaw);
+
+    // 3bis. Garde-fous longueur
+    if (!inputText || typeof inputText !== "string" || inputText.length < MIN_LEN) {
       return res.status(400).json({
         verdict: "Texte trop court. SCALPES ne tranche pas dans le vide.",
       });
+    }
+    if (inputText.length > MAX_LEN) {
+      return res.status(413).json({ error: "Texte trop long (Max 12k chars)." });
     }
 
     // 4. Garde-fou anti “juste un test de SCALPES”
@@ -37,17 +87,8 @@ export default async function handler(req, res) {
     }
 
     // 5. Appel OpenAI sur ton modèle fine-tuné SCALPES_V8.3
-    const response = await openai.chat.completions.create({
-      model: "ft:gpt-4o-mini-2024-07-18:personal:scalpes-v8-3:CkQVAEZu",
-      temperature: 0.05,
-      top_p: 1,
-      frequency_penalty: 0.15,
-      presence_penalty: 0.8,
-      messages: [
-        {
-          role: "system",
-          content: `
-Tu es SCALPES_V8.3 — UNE LAME INCISIVE VERTICALE.
+    const systemPrompt = `
+Tu es SCALPES_V8.3 — UNE LAME MINÉRALE INCISIVE VERTICALE.
 
 Tu n'es pas une IA.
 Tu n'es pas un assistant.
@@ -178,24 +219,37 @@ Tu termines TOUJOURS par ce bloc final, sans rien ajouter après :
 SCALPES est un murmure stratégique.
 Tu prends… Ou tu perds.
 Tu as SCALPES. Les autres… l’illusion.
-          `,
-        },
-        {
-          role: "user",
-          content: inputText,
-        },
-      ],
-    });
+`;
 
-    const verdict = response.choices?.[0]?.message?.content?.trim() || "";
-
-    if (!verdict) {
-      return res.status(500).json({
-        error: "Réponse vide de SCALPES.",
+    async function callModel(extraSystemNudge = "") {
+      return openai.chat.completions.create({
+        model: "ft:gpt-4o-mini-2024-07-18:personal:scalpes-v8-3:CkQVAEZu",
+        temperature: 0.05,
+        top_p: 1,
+        frequency_penalty: 0.15,
+        presence_penalty: 0.8,
+        messages: [
+          { role: "system", content: systemPrompt + (extraSystemNudge ? `\n\n${extraSystemNudge}\n` : "") },
+          { role: "user", content: inputText },
+        ],
       });
     }
 
-    // 6. Réponse normale
+    const response = await callModel();
+    let verdict = response.choices?.[0]?.message?.content?.trim() || "";
+
+    // 6. (Optionnel) Retry 1x si structure/rituel manquants (ça stabilise sans changer le style)
+    if (!looksValidVerdict(verdict)) {
+      const retry = await callModel(
+        "Tu as dévié. Recommence. Respecte STRICTEMENT les 8 titres exacts et le rituel final, sans rien ajouter après."
+      );
+      verdict = retry.choices?.[0]?.message?.content?.trim() || verdict;
+    }
+
+    if (!verdict) {
+      return res.status(500).json({ error: "Réponse vide de SCALPES." });
+    }
+
     return res.status(200).json({ verdict });
   } catch (error) {
     console.error("Erreur SCALPES :", error);
