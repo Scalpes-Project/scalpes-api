@@ -242,10 +242,10 @@ Tu as SCALPES. Les autres… l’illusion.
     async function callModel(extraSystemNudge = "") {
       return openai.chat.completions.create({
         model: "ft:gpt-4o-mini-2024-07-18:personal:scalpes-v8-3:CkQVAEZu",
-        temperature: 0.05,
-        top_p: 1,
+        temperature: 0.22,
+        top_p: 0.95,
         frequency_penalty: 0.15,
-        presence_penalty: 0.8,
+        presence_penalty: 0.55,
         messages: [
           { role: "system", content: systemPrompt + (extraSystemNudge ? `\n\n${extraSystemNudge}\n` : "") },
           { role: "user", content: inputText },
