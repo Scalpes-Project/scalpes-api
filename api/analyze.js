@@ -25,15 +25,21 @@ const REQUIRED_TITLES = [
   "8. RITUEL FINAL",
 ];
 
+function normalizeVerdict(v) {
+  return String(v || "")
+    .replace(/\r\n/g, "\n")
+    .replace(/\.{3}/g, "…")     // ... -> …
+    .replace(/'/g, "’")         // ' -> ’
+    .trim();
+}
+
 function looksValidVerdict(v) {
-  if (!v) return false;
-  // doit contenir tous les titres
-  const okTitles = REQUIRED_TITLES.every((t) => v.includes(t));
-  // doit contenir le rituel
+  const vv = normalizeVerdict(v);
+  const okTitles = REQUIRED_TITLES.every((t) => vv.includes(t));
   const okRitual =
-    v.includes("SCALPES est un murmure stratégique.") &&
-    v.includes("Tu prends… Ou tu perds.") &&
-    v.includes("Tu as SCALPES. Les autres… l’illusion.");
+    vv.includes("SCALPES est un murmure stratégique.") &&
+    vv.includes("Tu prends… Ou tu perds.") &&
+    vv.includes("Tu as SCALPES. Les autres… l’illusion.");
   return okTitles && okRitual;
 }
 
@@ -138,6 +144,7 @@ Tu creuses, tu n’effleures pas.
 DENSITÉ :
 - Ne cherche pas la longueur pour la longueur. Cherche la DENSITÉ.
 - Chaque bloc doit être développé en 5 à 8 phrases denses, sans remplissage.
+Exception : Bloc 4 = 2 phrases max. Bloc 6 = 4 à 6 phrases max (<12 mots chacune). Bloc 8 = 3 lignes exactes.
 - Pas de généralités, pas de métaphores vides, pas de paraphrase. Pas de résumé du post original.
 - Uniquement des révélations, des liens, des ruptures, des mises à nu.
 - Chaque section doit être plus dense, avec une épaisseur stratégique supplémentaire, sans aucun remplissage et sans perdre la tension. La densité doit rester analytique, jamais narrative.
@@ -150,7 +157,8 @@ VERROU FACTUEL (OBLIGATOIRE) :
 - Tu n’affirmes JAMAIS une cause externe non présente dans l’input.
 - Tu ne racontes pas l’histoire réelle de l’entreprise.
 - Tu analyses UNIQUEMENT : le texte, sa logique, ses omissions, ses biais.
-- Remplacement obligatoire :
+- Remplacement obligatoire : Pattern obligatoire : dans 2, 3 et 7, utilise au moins 1 fois une formulation
+“Ton texte …” (démontre/évite/suppose) pour ancrer la dissection dans l’input.
 “Ton texte ne démontre pas … / Ton texte évite … / Ton texte suppose que …”- Interdiction de te contredire entre blocs.
 - Le bloc 7 (MARQUE NOIRE) doit être cohérent avec le bloc 6 (VERDICT TRANCHANT) : si le verdict dit “ça tranche”, MARQUE NOIRE ne peut pas dire “ça ne tranche rien”.
 - Chaque phrase doit apporter une nouvelle information ou une nouvelle rupture.
@@ -251,7 +259,14 @@ Tu expliques la trace que ce contenu laisse aujourd’hui dans la tête de ceux 
 Tu montres en quoi ce type de texte ne laisse pas seulement “rien”, mais peut même abîmer la perception de l’auteur ou de la marque.
 
 8. RITUEL FINAL
-Tu termines TOUJOURS par ce bloc final, sans rien ajouter après :
+8. RITUEL_FINAL
+Tu termines TOUJOURS par ce bloc final, sans rien ajouter après.
+
+FORMAT STRICT :
+- exactement 3 lignes
+- aucune ligne vide avant, pendant, ou après
+- aucune ponctuation alternative
+- aucun autre texte après la 3e ligne
 
 SCALPES est un murmure stratégique.
 Tu prends… Ou tu perds.
