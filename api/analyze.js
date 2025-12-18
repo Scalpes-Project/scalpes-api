@@ -41,7 +41,99 @@ function looksValidVerdict(v) {
     vv.includes("Tu prends… Ou tu perds.");
   return okTitles && okRitual;
 }
+// --- Longueur par bloc (stabilise sans tuer la variabilité)
+function splitBlocks(verdict) {
+  const v = normalizeVerdict(verdict);
+  const blocks = {};
+  for (let i = 0; i < REQUIRED_TITLES.length; i++) {
+    const t = REQUIRED_TITLES[i];
+    const start = v.indexOf(t);
+    if (start === -1) continue;
+    const end = i < REQUIRED_TITLES.length - 1 ? v.indexOf(REQUIRED_TITLES[i + 1]) : v.length;
+    blocks[t] = v.slice(start, end).trim();
+  }
+  return blocks;
+}
 
+function countSentences(blockText) {
+  const t = String(blockText || "")
+    .replace(/^\s*\d+\.\s+[^\n]+\n?/m, "") // retire le titre du bloc
+    .trim();
+  if (!t) return 0;
+  return t
+    .split(/(?<=[\.\!\?\…])\s+/g)
+    .map((s) => s.trim())
+    .filter(Boolean).length;
+}
+
+function checkBlockLengths(verdict) {
+  const blocks = splitBlocks(verdict);
+  const issues = [];
+
+  const get = (title) => blocks[title] || "";
+
+  // Blocs denses : 5 à 8 phrases (tolérance 9)
+  const dense = [
+    "1. FORCES",
+    "2. FAILLES DÉCISIVES",
+    "3. SIGNAUX FAIBLES",
+    "5. RENAISSANCE STRATÉGIQUE (⚡)",
+    "7. MARQUE NOIRE (☣)",
+  ];
+
+  for (const t of dense) {
+    const s = countSentences(get(t));
+    if (s < 5) issues.push(`${t} trop court (${s} phrases)`);
+    if (s > 9) issues.push(`${t} trop long (${s} phrases)`);
+  }
+
+  // Bloc 4 : exactement 2 phrases
+  {
+    const s = countSentences(get("4. ANGLE STRATÉGIQUE NON EXPLOITÉ (🔐)"));
+    if (s !== 2) issues.push(`4. ANGLE... doit faire 2 phrases (actuel: ${s})`);
+  }
+
+  // Bloc 6 : 4 à 6 phrases
+  {
+    const s = countSentences(get("6. VERDICT TRANCHANT (💀)"));
+    if (s < 4 || s > 6) issues.push(`6. VERDICT... doit faire 4 à 6 phrases (actuel: ${s})`);
+  }
+
+  return { ok: issues.length === 0, issues };
+}
+
+// Optionnel mais utile : coupe tout ce qui traîne après le rituel final
+function hardTrimAfterRitual(v) {
+  const vv = normalizeVerdict(v);
+  const idx = vv.indexOf("8. RITUEL FINAL");
+  if (idx === -1) return vv;
+
+  const afterTitle = vv.slice(idx);
+  const lines = afterTitle.split("\n").map((l) => l.trimEnd());
+
+  // On reconstruit : "8. RITUEL FINAL" + 2 lignes de rituel, point.
+  // (évite les © qui se recollent parfois)
+  const out = [];
+  let titleSeen = false;
+  let ritualLines = 0;
+
+  for (const line of lines) {
+    if (!titleSeen) {
+      out.push(line);
+      titleSeen = true;
+      continue;
+    }
+    if (!line) continue;
+    out.push(line);
+    if (line === "SCALPES est un murmure stratégique.") ritualLines += 1;
+    if (line === "Tu prends… Ou tu perds.") ritualLines += 1;
+    if (ritualLines >= 2) break;
+  }
+
+  // Garde tout avant le bloc 8, puis le bloc 8 reconstruit
+  const before = vv.slice(0, idx).trimEnd();
+  return `${before}\n\n${out.join("\n")}`.trim();
+}
 export default async function handler(req, res) {
   // 1. On n'accepte que le POST
   if (req.method !== "POST") {
@@ -293,7 +385,27 @@ Tu prends… Ou tu perds.
       );
       verdict = retry.choices?.[0]?.message?.content?.trim() || verdict;
     }
+verdict = normalizeVerdict(verdict);
 
+// ---- Stabilisation longueur (1 retry max)
+const chk = checkBlockLengths(verdict);
+if (!chk.ok) {
+  const retry2 = await callModel(
+    `Tu as produit des blocs incohérents en longueur.
+Corrige UNIQUEMENT la densité/longueur, sans changer l’idée centrale.
+Règles :
+- Blocs 1/2/3/5/7 : 5 à 8 phrases chacun, denses.
+- Bloc 4 : exactement 2 phrases.
+- Bloc 6 : 4 à 6 phrases, <12 mots chacune.
+- Bloc 8 : exactement 2 lignes de rituel.
+Recommence le verdict complet avec les 8 titres exacts.
+Problèmes détectés : ${chk.issues.join(" | ")}`
+  );
+  verdict = normalizeVerdict(retry2.choices?.[0]?.message?.content?.trim() || verdict);
+}
+
+// ---- Coupe finale (évite © / texte en rab après le rituel)
+verdict = hardTrimAfterRitual(verdict);
     if (!verdict) {
       return res.status(500).json({ error: "Réponse vide de SCALPES." });
     }
