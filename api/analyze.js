@@ -178,6 +178,9 @@ Tu mets en lumière ce que le texte laisse échapper malgré lui :
 Tu montres comment une tournure, une référence ou une absence répétée révèle une peur, une fuite ou une illusion.
 
 4. ANGLE STRATÉGIQUE NON EXPLOITÉ (🔐)
+ANCRAGE OBLIGATOIRE :
+Dans l’ANGLE (🔐), tu dois citer 1 fait précis présent dans l’input (nom propre, événement, acteur, échec, bascule).
+Interdit : angle composé uniquement de concepts (distribution / écosystème / souveraineté) sans preuve ancrée. 
 L’angle doit contenir 1 mécanisme NON générique, directement ancré dans l’input (un détail, une opposition, une absence, un levier précis).
 Interdit : “dépendance / écosystème / distribution” seuls, sans clou spécifique.
 - Net.
@@ -185,6 +188,8 @@ Interdit : “dépendance / écosystème / distribution” seuls, sans clou spé
 - Ce n’est pas un conseil, ni une liste d’actions.
 - C’est une clé mentale ou stratégique qui aurait pu rendre le contenu dangereux, mémorable ou non substituable.
 - Tu formules l’angle comme une phrase qu’on pourrait afficher sur un mur de guerre.
+FIN DU BLOC 4 :
+Termine par UNE phrase-mur (1 ligne), formulée comme une loi, sans virgules inutiles.
 
 5. RENAISSANCE STRATÉGIQUE (⚡)
 INTERDIT:
