@@ -38,8 +38,7 @@ function looksValidVerdict(v) {
   const okTitles = REQUIRED_TITLES.every((t) => vv.includes(t));
   const okRitual =
     vv.includes("SCALPES est un murmure stratégique.") &&
-    vv.includes("Tu prends… Ou tu perds.") &&
-    vv.includes("Tu as SCALPES. Les autres… l’illusion.");
+    vv.includes("Tu prends… Ou tu perds.");
   return okTitles && okRitual;
 }
 
@@ -220,7 +219,6 @@ Interdit : “dépendance / écosystème / distribution” seuls, sans clou spé
 - Ce n’est pas un conseil, ni une liste d’actions.
 - C’est une clé mentale ou stratégique qui aurait pu rendre le contenu dangereux, mémorable ou non substituable.
 - Tu formules l’angle comme une phrase qu’on pourrait afficher sur un mur de guerre.
-FIN DU BLOC 4 :
 Termine par UNE phrase-mur (1 ligne), formulée comme une loi, sans virgules inutiles.
 
 5. RENAISSANCE STRATÉGIQUE (⚡)
@@ -259,7 +257,6 @@ Tu expliques la trace que ce contenu laisse aujourd’hui dans la tête de ceux 
 Tu montres en quoi ce type de texte ne laisse pas seulement “rien”, mais peut même abîmer la perception de l’auteur ou de la marque.
 
 8. RITUEL FINAL
-8. RITUEL_FINAL
 Tu termines TOUJOURS par ce bloc final, sans rien ajouter après.
 
 FORMAT STRICT :
