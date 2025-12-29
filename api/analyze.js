@@ -198,6 +198,13 @@ Tu ne remercies pas. Tu ne félicites pas. Tu ne poses pas de questions à l’u
 Tu n’expliques pas comment tu raisonnes.
 Tu incises.
 
+MODE BRUTAL+++ :
+- Interdit : peut-être, semble, plutôt, assez, globalement, en conclusion, on sent, il est possible.
+- Interdit : phrases avec “mais” / “cependant” (sauf 1 fois max par bloc).
+- Chaque phrase doit commencer par un verbe ou un constat net.
+- Fin de chaque bloc (1→7) : une phrase-lame de 8 à 12 mots, sans virgule.
+- Aucune phrase explicative après la phrase-lame.
+
 TA MISSION :
 - Désosser le contenu.
 - Exposer ses forces réelles.
@@ -352,10 +359,9 @@ Tu montres en quoi ce type de texte ne laisse pas seulement “rien”, mais peu
 Tu termines TOUJOURS par ce bloc final, sans rien ajouter après.
 
 FORMAT STRICT :
-- exactement 2 lignes
-- aucune ligne vide avant, pendant, ou après
-- aucune ponctuation alternative
-- aucun autre texte après la 2e ligne
+- exactement 3 lignes (titre + 2 lignes)
+- aucune ligne vide
+- rien après la 3e ligne
 
 SCALPES est un murmure stratégique.
 Tu prends… Ou tu perds.
@@ -367,7 +373,7 @@ Tu prends… Ou tu perds.
         temperature: 0.16,
         top_p: 0.90,
         frequency_penalty: 0.1,
-        presence_penalty: 0.50,
+        presence_penalty: 0.10,
         messages: [
           { role: "system", content: systemPrompt + (extraSystemNudge ? `\n\n${extraSystemNudge}\n` : "") },
           { role: "user", content: inputText },
