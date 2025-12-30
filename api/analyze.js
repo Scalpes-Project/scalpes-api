@@ -385,24 +385,11 @@ export default async function handler(req, res) {
     let userId = null;
     let tier = "profane";
 
-    if (sessionId) {
-      try {
-        session = await verifySession(sessionId);
-        userId = session.user_id;
-        tier = session.tier;
+    let session = null;
+let userId = null;
+let tier = "profane";
 
-        // Vérifier quotas
-        const quota = await checkQuota(userId, tier);
-        if (!quota.ok) {
-          return res.status(429).json({
-            error: `Quota mensuel atteint (${quota.used}/${quota.limit} verdicts Disciple). Passe Initié pour illimité.`,
-            quota: { used: quota.used, limit: quota.limit }
-          });
-        }
-      } catch (err) {
-        return res.status(403).json({ error: err.message });
-      }
-    }
+console.log("Mode test : session désactivée");
 
     // ---- Normalisation input
     const inputText = normalizeInput(inputTextRaw);
@@ -489,20 +476,6 @@ Problèmes détectés : ${chk.issues.join(" | ")}`
 
     if (!verdict) {
       return res.status(500).json({ error: "Réponse vide de SCALPES." });
-    }
-
-    // ---- Stocker verdict + historique
-    if (sessionId) {
-      await storeVerdict(sessionId, userId, tier, inputText, contentHash, verdict);
-      await recordVerdict(sessionId, userId, tier, contentHash);
-
-      // Marquer session comme utilisée (Profane = 1 shot)
-      if (tier === "profane") {
-        await supabase
-          .from("premium_sessions")
-          .update({ used: true })
-          .eq("session_id", sessionId);
-      }
     }
 
     console.log("Verdict généré", { 
