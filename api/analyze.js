@@ -385,10 +385,6 @@ export default async function handler(req, res) {
     let userId = null;
     let tier = "profane";
 
-    let session = null;
-let userId = null;
-let tier = "profane";
-
 console.log("Mode test : session désactivée");
 
     // ---- Normalisation input
